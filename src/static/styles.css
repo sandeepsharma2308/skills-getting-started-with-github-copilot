@@ -158,11 +158,6 @@ footer {
   margin-bottom: 6px;
 }
 
-.participants-list {
-  list-style-type: disc;
-  margin-left: 20px;
-  color: #333;
-  font-size: 15px;
 /* Hide bullet points and style participant list */
 .participants-list {
   display: flex;

@@ -1,17 +1,3 @@
-from pydantic import BaseModel
-
-class UnregisterRequest(BaseModel):
-    email: str
-@app.post("/activities/{activity_name}/unregister")
-def unregister_from_activity(activity_name: str, req: UnregisterRequest):
-    """Unregister a student from an activity"""
-    if activity_name not in activities:
-        raise HTTPException(status_code=404, detail="Activity not found")
-    activity = activities[activity_name]
-    if req.email not in activity["participants"]:
-        raise HTTPException(status_code=400, detail="Student not registered for this activity")
-    activity["participants"].remove(req.email)
-    return {"message": f"Unregistered {req.email} from {activity_name}"}
 """
 High School Management System API
 
@@ -22,6 +8,7 @@ for extracurricular activities at Mergington High School.
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 import os
 from pathlib import Path
 
@@ -119,3 +106,19 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+class UnregisterRequest(BaseModel):
+    email: str
+
+
+@app.post("/activities/{activity_name}/unregister")
+def unregister_from_activity(activity_name: str, req: UnregisterRequest):
+    """Unregister a student from an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity = activities[activity_name]
+    if req.email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student not registered for this activity")
+    activity["participants"].remove(req.email)
+    return {"message": f"Unregistered {req.email} from {activity_name}"}
