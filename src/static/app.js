@@ -26,9 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
           participantsHTML = `
             <div class="participants-section">
               <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${details.participants.map(p => `<li>${p}</li>`).join("")}
-              </ul>
+              <div class="participants-list">
+                ${details.participants.map(p => `
+                  <span class="participant-item">${p} <span class="delete-icon" title="Unregister" data-activity="${name}" data-email="${p}">&#128465;</span></span>
+                `).join("")}
+              </div>
             </div>
           `;
         } else {
@@ -54,6 +56,26 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+      });
+      // Event delegation for delete icon
+      activitiesList.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("delete-icon")) {
+          const activity = e.target.getAttribute("data-activity");
+          const email = e.target.getAttribute("data-email");
+          if (confirm(`Unregister ${email} from ${activity}?`)) {
+            try {
+              const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+              });
+              if (!response.ok) throw new Error("Failed to unregister participant");
+              fetchActivities(); // Refresh list
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+          }
+        }
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
